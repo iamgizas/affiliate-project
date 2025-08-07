@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  createdAt    DateTime @default(now())
+
+  // Relations
+  ecommerce     Ecommerce?
+  affiliateLinks AffiliateLink[]
+  payoutRequests PayoutRequest[]
+}
+
+model Ecommerce {
+  id          String   @id @default(cuid())
+  name        String
+  domain      String   @unique
+  apiKey      String   @unique
+  createdAt   DateTime @default(now())
+
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String   @unique
+
+  commissionRules CommissionRule[]
+  affiliateLinks  AffiliateLink[]
+  sales           Sale[]
+}
+
+model AffiliateLink {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  productUrl   String
+  createdAt    DateTime @default(now())
+
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+
+  ecommerce    Ecommerce @relation(fields: [ecommerceId], references: [id])
+  ecommerceId  String
+
+  clicks       Click[]
+  sales        Sale[]
+}
+
+model Click {
+  id               String   @id @default(cuid())
+  ipAddress        String
+  userAgent        String
+  createdAt        DateTime @default(now())
+
+  affiliateLink    AffiliateLink @relation(fields: [affiliateLinkId], references: [id])
+  affiliateLinkId  String
+}
+
+model Sale {
+  id               String   @id @default(cuid())
+  amount           Float
+  commissionValue  Float
+  createdAt        DateTime @default(now())
+
+  affiliateLink    AffiliateLink @relation(fields: [affiliateLinkId], references: [id])
+  affiliateLinkId  String
+
+  ecommerce        Ecommerce @relation(fields: [ecommerceId], references: [id])
+  ecommerceId      String
+}
+
+model CommissionRule {
+  id             String   @id @default(cuid())
+  type           CommissionType
+  value          Float
+  createdAt      DateTime @default(now())
+
+  ecommerce      Ecommerce @relation(fields: [ecommerceId], references: [id])
+  ecommerceId    String
+}
+
+model PayoutRequest {
+  id             String   @id @default(cuid())
+  amount         Float
+  status         PayoutStatus @default(PENDING)
+  pixKey         String
+  createdAt      DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id])
+  userId         String
+}
+
+enum Role {
+  AFFILIATE
+  ADVERTISER
+}
+
+enum CommissionType {
+  FIXED
+  PERCENTAGE
+}
+
+enum PayoutStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}

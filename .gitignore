@@ -1,0 +1,26 @@
+# Node
+
+node_modules/
+dist/
+
+# Prisma
+.prisma/
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Editor / SO
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea
+
+# Test
+coverage/
+
+# TS build
+*.tsbuildinfo
