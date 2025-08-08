@@ -1,5 +1,6 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
+import { createLink, listLinks } from "../controllers/affiliateController";
 
 const router = Router();
 
@@ -7,16 +8,19 @@ const router = Router();
 router.use(authMiddleware)
 
 // Rota protegida (acesso ao painel do afiliado)
-router.get('/dashboard', (req: Request, res: Response) => {
-    const { user } = req
-
+router.get('/dashboard', (req, res) => {
+    const user = req.user
     if (user?.role !== 'AFFILIATE') {
-        return res.status(403).json({ error: 'Acesso permitido apenas para afiliados.' })
+        return res.status(403).json({ error: 'Acesso negado.' })
     }
 
-    return res.json({
-        message: `Boas-vindas ao seu painel de afiliado ${user.userId}`,
-    })
+    res.json({ message: `Painel do afiliado ${user.userId}` })
 })
+
+// Gerar link de afiliado
+router.post('/links', createLink)
+
+// Listar links do afiliado
+router.get('/links', listLinks)
 
 export default router

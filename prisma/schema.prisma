@@ -19,6 +19,7 @@ model User {
   ecommerce     Ecommerce?
   affiliateLinks AffiliateLink[]
   payoutRequests PayoutRequest[]
+  clicks      Click[]
 }
 
 model Ecommerce {
@@ -34,6 +35,7 @@ model Ecommerce {
   commissionRules CommissionRule[]
   affiliateLinks  AffiliateLink[]
   sales           Sale[]
+  clicks      Click[]
 }
 
 model AffiliateLink {
@@ -54,12 +56,16 @@ model AffiliateLink {
 
 model Click {
   id               String   @id @default(cuid())
+  ecommerceId      String
+  userId           String
   ipAddress        String
   userAgent        String
-  createdAt        DateTime @default(now())
+  clickedAt        DateTime @default(now())
 
   affiliateLink    AffiliateLink @relation(fields: [affiliateLinkId], references: [id])
   affiliateLinkId  String
+  ecommerce        Ecommerce @relation(fields: [ecommerceId], references: [id])
+  user             User @relation(fields: [userId], references: [id])
 }
 
 model Sale {
