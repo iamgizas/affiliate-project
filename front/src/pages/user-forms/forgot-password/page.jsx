@@ -21,12 +21,12 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-            <h2 className="text-2xl font-bold mb-4">Esqueci minha senha</h2>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-80">
+        <div className="flex flex-col items-center justify-center h-screen">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-80 p-5 bg-white border-4 border-violet-700 rounded-md">
+                <h2 className="flex justify-center text-2xl font-bold mb-4">Esqueci minha senha</h2>
                 <input
                 type="email"
-                className="border rounded p-2"
+                className="border rounded p-2 bg-neutral-300"
                 placeholder="Digite seu e-mail"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -34,7 +34,8 @@ const ForgotPassword = () => {
                 />
                 <button
                 type="submit"
-                className="bg-violet-600 hover:bg-violet-700 text-white rounded p-2"
+                className="mt-5 rounded-lg text-white border-2 border-violet-600 bg-violet-600 py-1 w-full 
+                hover:bg-transparent hover:text-violet-700 hover:font-semibold transition duration-500"
                 >
                 Enviar link
                 </button>
