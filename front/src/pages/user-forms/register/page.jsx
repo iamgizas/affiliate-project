@@ -184,7 +184,7 @@ const UserRegister = () => {
                         type="submit"  
                         value="Criar Conta"
                         onClick={userRegister}
-                        className="mt-5 rounded-lg text-black border-2 border-violet-600 bg-violet-600 py-1 w-full 
+                        className="mt-5 rounded-lg text-white border-2 border-violet-600 bg-violet-600 py-1 w-full 
                         hover:bg-transparent hover:text-violet-700 hover:font-semibold transition duration-500"                    
                         />                        
                             
