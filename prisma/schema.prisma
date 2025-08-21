@@ -20,6 +20,7 @@ model User {
   affiliateLinks AffiliateLink[]
   payoutRequests PayoutRequest[]
   clicks      Click[]
+  sales       Sale[]
 }
 
 model Ecommerce {
@@ -69,16 +70,19 @@ model Click {
 }
 
 model Sale {
-  id               String   @id @default(cuid())
-  amount           Float
-  commissionValue  Float
-  createdAt        DateTime @default(now())
+  id              String    @id @default(cuid())
+  affiliateLinkId String
+  ecommerceId     String
+  userId          String
+  orderId         String    @unique
+  amount          Float
+  commission      Float
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
 
-  affiliateLink    AffiliateLink @relation(fields: [affiliateLinkId], references: [id])
-  affiliateLinkId  String
-
-  ecommerce        Ecommerce @relation(fields: [ecommerceId], references: [id])
-  ecommerceId      String
+  affiliateLink   AffiliateLink @relation(fields: [affiliateLinkId], references: [id])
+  ecommerce       Ecommerce     @relation(fields: [ecommerceId], references: [id])
+  user            User          @relation(fields: [userId], references: [id])
 }
 
 model CommissionRule {

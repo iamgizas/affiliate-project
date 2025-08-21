@@ -1,8 +1,9 @@
-import { Router } from 'express'
-import { clickRedirect } from '../controllers/trackingController'
+import { Router } from "express";
+import { trackClick, trackSale } from "../controllers/trackingController";
 
 const router = Router()
 
-router.get('/click/:code', clickRedirect)
+router.post("/click", trackClick)
+router.post("/sale", trackSale)
 
 export default router
