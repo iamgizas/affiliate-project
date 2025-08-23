@@ -36,3 +36,50 @@ export async function getAffiliateLinks(userId: string) {
     },
   });
 }
+
+// Estatísticas do afiliado
+export async function getAffiliateStats(userId: string) {
+  // Total de links do afiliado
+  const links = await prisma.affiliateLink.findMany({
+    where: { userId },
+    include: {
+      clicks: true,
+      sales: true,
+    },
+  });
+
+  // Soma de cliques
+  const totalClicks = links.reduce((acc, link) => acc + link.clicks.length, 0);
+
+  // Soma vendas e comissão
+  const totalSales = links.reduce(( acc, link ) => acc + link.sales.length, 0);
+
+  const commissionRate = 0.1;
+  const totalCommission = links.reduce(
+    (acc, link) => acc + link.sales.reduce((sAcc, sale) => sAcc + (sale.amount * commissionRate), 0),
+    0
+  );
+
+  // Últimas 5 vendas
+  const recentSales = await prisma.sale.findMany({
+    where: {
+      affiliateLink: {
+        userId,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 5,
+    include: {
+      affiliateLink: true,
+    },
+  });
+
+  return {
+    totalClicks,
+    totalSales,
+    totalCommission,
+    recentSales,
+  };
+}

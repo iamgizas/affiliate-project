@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { createLink, listLinks } from "../controllers/affiliateController";
+import { createLink, listLinks, stats } from "../controllers/affiliateController";
 
 const router = Router();
 
@@ -22,5 +22,8 @@ router.post('/links', createLink)
 
 // Listar links do afiliado
 router.get('/links', listLinks)
+
+// estatística do afiliado
+router.get('/stats', authMiddleware, stats)
 
 export default router

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { createAffiliateLink, getAffiliateLinks } from '../services/affiliateService';
+import { createAffiliateLink, getAffiliateLinks, getAffiliateStats } from '../services/affiliateService';
 
 export const createLink = async (req: Request, res: Response) => {
     const user = req.user
@@ -31,6 +31,21 @@ export const listLinks = async (req: Request, res: Response) => {
     try {
         const links = await getAffiliateLinks(user.userId)
         return res.json({ links })
+    } catch (err: any) {
+        return res.status(500).json({ error: err.message })
+    }
+}
+
+export const stats = async (req: Request, res: Response) => {
+    const user = req.user
+
+    if (!user || user.role !== 'AFFILIATE') {
+        return res.status(401).json({ error: 'Acesso negado.' })
+    }
+
+    try {
+        const data = await getAffiliateStats(user.userId)
+        return res.json({ stats: data })
     } catch (err: any) {
         return res.status(500).json({ error: err.message })
     }
