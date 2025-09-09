@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { userLogin } from "../../../services/api";
+import Cookies from "js-cookie";
 
 const schema = yup 
 .object({
@@ -22,28 +23,33 @@ const schema = yup
     
 const UserLogin = () => {
     const [mostrarSenha, getMostrarSenha] = useState(false);
-    
     const [lembrarConta, setLembrarConta] = useState(false);
-    const [email, setEmail] = useState("");
+    
+    const navigate = useNavigate();
 
     const { register, handleSubmit, formState: {errors}, } = useForm({
         resolver: yupResolver(schema),
-    })
-    const onSubmit = (data) => {
-        if (lembrarConta) {
-            localStorage.setItem("emailSalvo", email);
-        } else {
-            localStorage.removeItem("emailSalvo");
+    });
+
+    async function onSubmit(data) {
+        try {
+            const { email, senha } = data;
+            const response = await userLogin(email, senha);
+            const result = await response.json();
+
+            if (result.token) {
+                Cookies.set("token", result.token, {
+                    expires: lembrarConta ? 7 : null,
+                    secure: true,
+                    sameSite: "strict",
+                });
+
+                navigate("/");
+            }
+        } catch (e) {
+            console.error(e);   
         }
     };
-
-    useEffect(() => {
-        const emailSalvo = localStorage.getItem("emailSalvo");
-        if (emailSalvo) {
-            setEmail(emailSalvo);
-            setLembrarConta(true);
-        }
-    }, [])
 
     return (
         <div>
@@ -73,10 +79,6 @@ const UserLogin = () => {
                         <input 
                         type="text" 
                         {...register("email")}
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                        }}
                         className="text-gray-800 bg-gray-300 border rounded-lg py-1 px-2 w-full text-base focus:outline-none focus:ring-0 focus:border-gray-700
                         hover:bg-gray-400/75 transition duration-300" 
                         />
@@ -121,7 +123,7 @@ const UserLogin = () => {
                             </svg>
                         </div>
 
-                        <span className="text-base font-medium">
+                        <span className="text-base font-medium hover:font-bold">
                             Lembrar minha conta
                         </span>
                     </label>
@@ -154,7 +156,7 @@ const UserLogin = () => {
                         value="Entrar"
                         onClick={userLogin}
                         className="mt-5 rounded-lg text-white border-2 border-violet-600 bg-violet-600 py-1 w-full 
-                        hover:bg-transparent hover:text-violet-700 hover:font-semibold transition duration-500"                    
+                        hover:bg-transparent hover:text-violet-700 hover:font-semibold transition duration-500 hover:cursor-pointer"                    
                         />                        
                             
                     </div>

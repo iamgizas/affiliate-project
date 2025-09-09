@@ -1,10 +1,11 @@
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { userRegister } from "../../../services/api";
+import Cookies from "js-cookie";
 
 const schema = yup 
     .object({
@@ -17,6 +18,16 @@ const schema = yup
         .required("Por favor, coloque um email.")
         .min(5, "O email precisa ter no mínimo 5 letras!")
         .email("Insira um email válido!"),
+        cpf: yup
+        .string()
+        .required("Por favor, coloque um CPF.")
+        .min(11, "O CPF precisa ter no mínimo 11 números!")
+        .max(11, "O CPF precisa ter no máximo 11 números!"),
+        telefone: yup
+        .string()
+        .required("Por favor, coloque um telefone.")
+        .min(10, "O telefone precisa ter no mínimo 10 números!")
+        .max(11, "O telefone precisa ter no máximo 11 números!"),
         senha: yup
         .string()
         .required("Por favor, coloque uma senha.")
@@ -31,28 +42,42 @@ const schema = yup
 const UserRegister = () => {
     const [mostrarSenha, getMostrarSenha] = useState(false);
     const [mostrarConfirmarSenha, getMostrarConfirmarSenha] = useState(false);
-    
     const [lembrarConta, setLembrarConta] = useState(false);
-    const [email, setEmail] = useState("");
-
-    const { register, handleSubmit, formState: {errors}, } = useForm({
+    
+    const navigate = useNavigate();
+    
+    const { 
+        register, 
+        handleSubmit, 
+        formState: {errors}, 
+    } = useForm({
         resolver: yupResolver(schema),
     })
-    const onSubmit = (data) => {
-        if (lembrarConta) {
-            localStorage.setItem("emailSalvo", email);
-        } else {
-            localStorage.removeItem("emailSalvo");
+
+    async function onSubmit (data) {
+        try {
+            const { nome, email, cpf, telefone, senha } = data; 
+            const role = data.role || "consumidor";
+
+            const response = await userRegister(role, nome, email, cpf, telefone, senha);
+            const result = await response.json();
+
+            if (result.token) {
+                Cookies.set("token", result.token, {
+                    expires: lembrarConta ? 7 : null,
+                    secure: true,
+                    sameSite: "strict",
+                });
+
+                navigate("/");
+            } else {
+                console.log("Token not found.", result);
+            }
+
+        } catch (e) {
+            console.log(e);
         }
     };
-
-    useEffect(() => {
-        const emailSalvo = localStorage.getItem("emailSalvo");
-        if (emailSalvo) {
-            setEmail(emailSalvo);
-            setLembrarConta(true);
-        }
-    }, [])
 
     return ( 
         <div>
@@ -61,7 +86,7 @@ const UserRegister = () => {
                 className='bg-violet-700 text-zinc-200 flex m-5 p-5 text-center rounded-md hover:bg-violet-600/50
                  transition delay-300'
                 to={{
-                pathname: "/"
+                pathname: "/login"
                 }}
                 >
                     Voltar
@@ -103,15 +128,42 @@ const UserRegister = () => {
 
                         <input 
                         type="text" 
-                        {...register("email")}
-                        value={email}
-                        onChange={(e) => {
-                            setEmail(e.target.value);
-                        }}
+                        {...register("email")}                
+                        placeholder="Ex.: example@gmail.com"
                         className="text-gray-800 bg-gray-300 border rounded-lg py-1 px-2 w-full text-base focus:outline-none focus:ring-0 focus:border-gray-700
                         hover:bg-gray-400/75 transition duration-300" 
                         />
                         <p role="alert" className="text-violet-700 font-medium">{errors.email?.message}</p>
+                    </div>
+
+                    <div className="mt-5">
+                        <label htmlFor="register-email" className="text-gray-800 text-base mb-2 block font-medium">
+                            CPF
+                        </label>
+
+                        <input 
+                        type="text" 
+                        {...register("cpf")}
+                        placeholder="Ex.: 123.456.789-01"
+                        className="text-gray-800 bg-gray-300 border rounded-lg py-1 px-2 w-full text-base focus:outline-none focus:ring-0 focus:border-gray-700
+                        hover:bg-gray-400/75 transition duration-300" 
+                        />
+                        <p role="alert" className="text-violet-700 font-medium">{errors.cpf?.message}</p>
+                    </div>
+
+                    <div className="mt-5">
+                        <label htmlFor="register-email" className="text-gray-800 text-base mb-2 block font-medium">
+                            Telefone
+                        </label>
+
+                        <input 
+                        type="text" 
+                        {...register("telefone")}
+                        placeholder="Ex.: 12 34567-8901"
+                        className="text-gray-800 bg-gray-300 border rounded-lg py-1 px-2 w-full text-base focus:outline-none focus:ring-0 focus:border-gray-700
+                        hover:bg-gray-400/75 transition duration-300" 
+                        />
+                        <p role="alert" className="text-violet-700 font-medium">{errors.telefone?.message}</p>
                     </div>
 
                     <div className="mt-5">
@@ -174,7 +226,7 @@ const UserRegister = () => {
                             </svg>
                         </div>
 
-                        <span className="text-base font-medium">
+                        <span className="text-base font-medium hover:cursor-pointer hover:font-bold">
                             Lembrar minha conta
                         </span>
                     </label>
