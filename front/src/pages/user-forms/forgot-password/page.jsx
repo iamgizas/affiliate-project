@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -22,6 +23,17 @@ const ForgotPassword = () => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen">
+            <div className="absolute top-1 left-1">            
+                <Link
+                className='bg-violet-700 text-zinc-200 flex m-5 p-5 text-center rounded-md hover:bg-violet-600/50
+                transition delay-300'
+                to={{
+                pathname: "/login"
+                }}
+                >
+                    Voltar
+                </Link>
+            </div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3 w-80 p-5 bg-white border-4 border-violet-700 rounded-md">
                 <h2 className="flex justify-center text-2xl font-bold mb-4">Esqueci minha senha</h2>
                 <input
