@@ -9,16 +9,16 @@ function App() {
 
   return (
     <div className='bg-neutral-800'>
+      
+
       <div>
         <Routes>
+          <Route path='/' element={<Navbar />} />
           <Route path='/register' element={<UserRegister />} /> 
+          
           <Route path='/login' element={<UserLogin />} /> 
           <Route path='/forgot-password' element={<ForgotPassword />} /> 
         </Routes>
-      </div>
-
-      <div> 
-        <Navbar />
       </div>
     </div>
   );
